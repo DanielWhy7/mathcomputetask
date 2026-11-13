@@ -1,0 +1,176 @@
+\documentclass[12pt,a4paper]{article}
+
+% Кодировка и русский язык
+\usepackage[utf8]{inputenc}
+\usepackage[T2A]{fontenc}
+\usepackage[russian]{babel}
+
+% Графика, таблицы, математика
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{amsmath}
+\usepackage{float}
+\usepackage{geometry}
+\geometry{left=2.5cm,right=2.5cm,top=2cm,bottom=2cm}
+
+% Немного удобств
+\usepackage{hyperref}
+\hypersetup{colorlinks=true,linkcolor=blue,urlcolor=blue}
+
+\title{Компьютерная задача\\«Спектральный анализ сетевого трафика для обнаружения аномалий»\\Вариант 1}
+\author{Ваше ФИО}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\section{Цель работы}
+Освоить дискретное преобразование Фурье для анализа временного ряда сетевого трафика и определить наличие аномальных частотных компонент.
+
+\section{Исходные данные}
+Дан файл \texttt{variant\_01.csv} с двумя колонками:
+\begin{itemize}
+    \item \texttt{index} — номер точки времени, \(0,\dots,499\);
+    \item \texttt{traffic} — интенсивность трафика, пакетов в секунду.
+\end{itemize}
+Длина ряда \(N=500\).
+
+\section{График временного ряда}
+На рис.~\ref{fig:traffic} показан исходный временной ряд.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{01_traffic_series.png}
+    \caption{Временной ряд интенсивности сетевого трафика для варианта 1}
+    \label{fig:traffic}
+\end{figure}
+
+По графику видно, что трафик колеблется около среднего уровня примерно \(500\) пакетов/с. Выраженного монотонного тренда нет. Заметны отдельные выбросы, например:
+\begin{itemize}
+    \item \(index=209\): \(\approx 615.58\);
+    \item \(index=179\): \(\approx 581.61\);
+    \item \(index=113\): \(\approx 573.90\);
+    \item \(index=262\): \(\approx 402.76\) — нижний выброс.
+\end{itemize}
+Окончательный вывод об аномальности делается по спектру.
+
+\section{Вычисление коэффициентов Фурье}
+Для \(k=0,1,\dots,50\) коэффициенты вычислялись вручную по формулам ДПФ без использования FFT:
+\[
+\frac{a_0}{2}=\frac{1}{N}\sum_{j=0}^{N-1}T(j),
+\]
+\[
+a_k=\frac{2}{N}\sum_{j=0}^{N-1}T(j)\cos\left(\frac{2\pi kj}{N}\right),
+\qquad
+b_k=\frac{2}{N}\sum_{j=0}^{N-1}T(j)\sin\left(\frac{2\pi kj}{N}\right),
+\]
+\[
+A_k=\sqrt{a_k^2+b_k^2}.
+\]
+Здесь \(N=500\). Результаты сохранены в файл \texttt{fourier\_coefficients\_variant\_01.csv}.
+
+Средний уровень трафика:
+\[
+\frac{a_0}{2} \approx \ldots
+\]
+% Подставьте значение из консоли скрипта
+
+\section{Амплитудный спектр}
+На рис.~\ref{fig:spectrum} приведён спектр \(A_k\) для \(k=1,\dots,50\).
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{02_spectrum.png}
+    \caption{Амплитудный спектр \(A_k\) для \(k=1,\dots,50\)}
+    \label{fig:spectrum}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{04_spectrum_stem.png}
+    \caption{Спектр \(A_k\) в виде stem-графика}
+    \label{fig:spectrum_stem}
+\end{figure}
+
+Топ-10 гармоник по амплитуде:
+% Заполните таблицу значениями из вывода скрипта
+\begin{table}[H]
+    \centering
+    \caption{Топ-10 гармоник по амплитуде \(A_k\)}
+    \begin{tabular}{rr}
+        \toprule
+        \(k\) & \(A_k\) \\
+        \midrule
+        % Пример:
+        % 1 & 0.0000 \\
+        % 2 & 0.0000 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+Средняя амплитуда и СКО по \(k=1,\dots,50\):
+\[
+\overline{A} \approx \ldots,
+\qquad
+\sigma_A \approx \ldots.
+\]
+Порог \(\overline{A}+3\sigma_A \approx \ldots\).
+
+Гармоники, превышающие порог:
+% Перечислите k из вывода скрипта или напишите, что таких нет
+\begin{itemize}
+    \item \(\ldots\)
+\end{itemize}
+
+\section{Определение аномалии}
+Ответы на вопросы задания:
+\begin{enumerate}
+    \item Есть ли в спектре аномальные пики?
+    
+    % Например:
+    % Резко выделяющихся пиков на высоких частотах не обнаружено.
+    % Если пики есть — перечислите их.
+    
+    \item На каких \(k\) они находятся?
+    
+    % Например:
+    % Наблюдаются только обычные низкочастотные компоненты; аномальных k нет.
+    
+    \item Что это может означать?
+    
+    % Например:
+    % Признаков DDoS, ботнета, сканирования портов или скрытого канала
+    % по спектру не выявлено. Отдельные выбросы во временном ряду
+    % не образуют устойчивой периодической компоненты.
+\end{enumerate}
+
+\section{Тригонометрические приближения}
+Построены приближения для \(K=2\) и \(K=20\):
+\[
+T_K(t)=\frac{a_0}{2}+\sum_{k=1}^{K}
+\left(
+a_k\cos\frac{2\pi kt}{N}+b_k\sin\frac{2\pi kt}{N}
+\right).
+\]
+На рис.~\ref{fig:approx} показаны исходный ряд и оба приближения.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.98\textwidth]{03_approximations.png}
+    \caption{Исходный ряд и приближения \(K=2\), \(K=20\)}
+    \label{fig:approx}
+\end{figure}
+
+RMSE:
+\[
+\mathrm{RMSE}_{K=2} \approx \ldots,
+\qquad
+\mathrm{RMSE}_{K=20} \approx \ldots.
+\]
+Приближение \(K=20\) описывает данные лучше, чем \(K=2\), что подтверждается меньшим RMSE и визуально более близкой формой графика.
+
+\section{Вывод}
+В ходе работы построена спектральная модель временного ряда сетевого трафика для варианта 1. Коэффициенты Фурье вычислены вручную для \(k=0,\dots,50\). По спектру \(A_k\) аномальных частотных компонент, указывающих на DDoS-атаку или скрытый канал, не обнаружено. Наблюдаемые колебания и отдельные выбросы не образуют устойчивого пика на высокой частоте. Приближение \(K=20\) точнее описывает ряд, чем \(K=2\).
+
+\end{document}
